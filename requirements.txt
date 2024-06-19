@@ -10,3 +10,4 @@ python-telegram-bot==21.3
 pyttsx3==2.90
 pywin32==306
 Requests==2.32.3
+pyinstaller==6.8.0
