@@ -51,3 +51,4 @@ Before running this program edit the config.py file
 ## Contact
 
 💬 https://t.me/primogirone
+thanks to henry-richard7 <3 for the base
