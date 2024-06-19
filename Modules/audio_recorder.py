@@ -31,32 +31,6 @@ def print_audio_devices():
 
     return "\n\n".join(device_list)
 
-def select_audio_device():
-    p = pyaudio.PyAudio()
-    device_id = None
-
-    while True:
-        print_audio_devices()
-        try:
-            device_id = int(input("Inserisci l'ID del dispositivo audio desiderato: "))
-            if not (0 <= device_id < p.get_device_count()):
-                return "NError"
-            
-            device_info = p.get_device_info_by_index(device_id)
-            max_channels = device_info['maxInputChannels']
-            default_sample_rate = device_info['defaultSampleRate']
-            
-
-            channels = max_channels
-            rate = int(default_sample_rate)
-
-            break
-        except ValueError as ve:
-            return "Error"
-
-    p.terminate()
-    return device_id, channels, rate
-
 def audio_recorder(seconds, device_id, channels, rate):
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
@@ -90,10 +64,5 @@ def audio_recorder(seconds, device_id, channels, rate):
     wf.close()
 
 
-def main():
-    try:
-        device_id, channels, rate = select_audio_device()
-        audio_recorder(5, device_id, channels, rate)
-    except OSError:
-        return "OError"
+
 

