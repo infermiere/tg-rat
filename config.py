@@ -1,7 +1,7 @@
 ### TELEGRAM BOT
 
-apiKey = "6936105260:AAHNBkiGsbjnX8SuU1rtrp0GGQf2KNdoRx8"
-chatID = 6047305223
+apiKey = "TOKEN HERE"
+chatID = CHATID # https://t.me/get_myidbot
 
 ## RAT
 
