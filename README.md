@@ -1,5 +1,8 @@
 # TGRat
 
+|DISCLAIMER|
+|-------------------------------------------------|
+By using TG Rat, you agree that you hold responsibility and accountability of any consequences caused by your actions. Furthermore, the program was developed for educational purposes only
 
 
 ## 📌Available Commands
