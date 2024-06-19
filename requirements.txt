@@ -1,0 +1,12 @@
+access_points==0.4.73
+easygui==0.98.3
+emoji_country_flag==1.3.2
+opencv_python==4.10.0.84
+psutil==5.9.8
+PyAudio==0.2.14
+PyAutoGUI==0.9.54
+pyperclip==1.8.2
+python-telegram-bot==21.3
+pyttsx3==2.90
+pywin32==306
+Requests==2.32.3
